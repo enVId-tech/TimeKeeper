@@ -1,0 +1,106 @@
+{
+  "block": [
+    {
+      period: '1',
+      start: '8:35 AM',
+      end: '9:55 AM'
+    },
+    {
+      period: '2',
+      start: '8:35: AM',
+      end: '9:55 AM'
+    },
+    {
+      period: '3',
+      start: '10:00 AM',
+      end: '11:25 AM'
+    },
+    {
+      period: '4',
+      start: '10:00 AM',
+      end: '11:25 AM'
+    },
+    {
+      period: '5',
+      start: '12:25 PM',
+      end: '1:50 PM'
+    },
+    {
+      period: '6',
+      start: '12:25 PM',
+      end: '1:50 PM'
+    },
+    {
+      period: '7',
+      start: '1:55 PM',
+      end: '3:20 PM'
+    },
+    {
+      period: '8',
+      start: '1:55 PM',
+      end: '3:20 PM'
+    },
+    {
+      period: '9 (Homeroom)',
+      start: '11:30 AM',
+      end: '11:50 AM'
+    },
+    {
+      period: 'Lunch',
+      start: '11:50 AM',
+      end: '12:20 PM'
+    }
+  ],
+  monday: [
+    {
+      period: '1',
+      start: '9:15 AM',
+      end: '9:55 AM'
+    },
+    {
+      period: '2',
+      start: '9:59 AM',
+      end: '10:34 AM'
+    },
+    {
+      period: '3',
+      start: '10:39 AM',
+      end: '11:14 AM'
+    },
+    {
+      period: '4',
+      start: '11:18 AM',
+      end: '11:53 AM'
+    },
+    {
+      period: '5',
+      start: '12:48 PM',
+      end: '1:23 PM'
+    },
+    {
+      period: '6',
+      start: '1:27 PM',
+      end: '2:02 PM'
+    },
+    {
+      period: '7',
+      start: '2:06 PM',
+      end: '2:41 PM'
+    },
+    {
+      period: '8',
+      start: '2:45 PM',
+      end: '3:20 PM'
+    },
+    {
+      period: 'Lunch',
+      start: '12:14 AM',
+      end: '12:44 AM'
+    },
+    {
+      period: 'Connections',
+      start: '11:53 AM',
+      end: '12:14 PM'
+    }
+  ]
+}
