@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {SafeAreaProvider} from "react-native-safe-area-context";
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Stack, useRouter} from "expo-router";
-import {Button, View, Text} from "react-native";
+import {Button, View, Text, StyleSheet} from "react-native";
 
 const MainScreen = () => {
     const bellScheduleState = useState(null);
@@ -55,30 +55,40 @@ const MainScreen = () => {
     }, []);
 
     return (
-        <SafeAreaProvider>
+        <SafeAreaProvider style={styles.container}>
             <Stack.Screen options={{ title: 'Main' }} />
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Text>Main Screen</Text>
                 <Text>Bell Schedule App</Text>
                 <Text>Version 1.0</Text>
-                <DropDownPicker
-                    items={[
-                        {label: 'USA', value: 'usa', icon: () => <Icon name="flag" size={18} color="#900" />, hidden: true},
-                        {label: 'UK', value: 'uk', icon: () => <Icon name="flag" size={18} color="#900" />},
-                        {label: 'France', value: 'france', icon: () => <Icon name="flag" size={18} color="#900" />},
-                    ]}
-                    defaultValue={"USA"}
-                    containerStyle={{height: 40}}
-                    style={{backgroundColor: '#fafafa'}}
-                    onChangeItem={item => this.setState({
-                        country: item.value
-                    })}
-                />u
+                <View>
+                    <Text>Bell Schedule</Text>
+                    <View>
+                        {
+                            bellSchedule["monday"].map((item, index) => (
+                                <View key={index}>
+                                    <Text>{item.period}</Text>
+                                    <Text>{item.start} - {item.end}</Text>
+                                </View>
+                            ))
+                        }
+                    </View>
+                </View>
                 <Text>Today's schedule</Text>
                 <Text>Normal bell schedule</Text>
             </View>
         </SafeAreaProvider>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: 'white'
+    }
+});
 
 export default MainScreen;
