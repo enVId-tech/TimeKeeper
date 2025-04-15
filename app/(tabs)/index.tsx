@@ -5,8 +5,12 @@ import {Stack, useRouter} from "expo-router";
 import {Button, View, Text, StyleSheet} from "react-native";
 
 const MainScreen = () => {
-    const bellScheduleState = useState(null);
+    const [selectedValue, setSelectedValue] = useState("");
     const currentDate = new Date();
+
+    const switchIsActive = () => {
+
+    }
 
     const bellSchedule = {
         "block (even, odd)": [
@@ -52,6 +56,7 @@ const MainScreen = () => {
     }
 
     useEffect(() => {
+
     }, []);
 
     return (
@@ -62,20 +67,29 @@ const MainScreen = () => {
                 <Text>Bell Schedule App</Text>
                 <Text>Version 1.0</Text>
                 <View>
-                    <Text>Bell Schedule</Text>
-                    <View>
-                        {
-                            bellSchedule["monday"].map((item, index) => (
-                                <View key={index}>
-                                    <Text>{item.period}</Text>
-                                    <Text>{item.start} - {item.end}</Text>
-                                </View>
-                            ))
-                        }
-                    </View>
+                    {
+                        Object.entries(bellSchedule).map(([key, value]) => (
+                            <Text style={styles.headers} onPress= {() => setSelectedValue(key)} key={key}>
+                                {key}
+                            </Text>
+                        ))
+                    }
+                    {
+                        Object.entries(bellSchedule).map(([key, value]) => (
+                            <View key={key} style={styles.mainTabs}>
+                                {
+                                    value.map((value) => (
+                                        <View key={value.period} style={key === selectedValue ? styles.visible : styles.hidden}>
+                                            {/*<Text>{key}</Text>*/}
+                                            <Text>{value.period}</Text>
+                                            <Text>{value.start} - {value.end}</Text>
+                                        </View>
+                                    ))
+                                }
+                            </View>
+                        ))
+                    }
                 </View>
-                <Text>Today's schedule</Text>
-                <Text>Normal bell schedule</Text>
             </View>
         </SafeAreaProvider>
     )
@@ -83,11 +97,51 @@ const MainScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
+        overflowY: 'auto',
         flex: 1,
+        width: '100%',
+        height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        textAlign: "center",
+    },
+    mainTitle: {
+        fontSize: 48,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    mainTabs: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: 20,
+        borderRadius: 20,
+    },
+    visible: {
+        backgroundColor: 'white',
+        borderColor: 'black',
+        borderWidth: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: 20,
+        borderRadius: 20,
+        padding: 10,
+    },
+    hidden: {
+        backgroundColor: 'white',
+        borderColor: 'white',
+        borderWidth: 1,
+        borderRadius: 20,
+        display: "none",
+    },
+    headers: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        textAlign: 'center',
     }
 });
 
