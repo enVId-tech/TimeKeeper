@@ -2,7 +2,7 @@
   "expo": {
     "name": "Oxford Academy Bell Schedule",
     "slug": "OA-Bell-Schedule",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "oa-timekeeper",
@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.envidtech.OABellSchedule"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +37,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9ae7560e-8384-4620-8f95-13be3416af07"
+      }
     }
   }
 }
