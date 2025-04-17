@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, Stack } from "expo-router";
 import { View, Text, StyleSheet, Animated, ScrollView } from "react-native";
-import { bellSchedule } from "@/app/times/times";
+import { bellSchedule } from "@/app/misc/times";
 
 const BellSchedules = () => {
     const [currentTime, setCurrentTime] = useState(new Date());

@@ -1,22 +1,28 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as React from 'react';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { NavigationContainer } from '@react-navigation/native';
 import BellSchedules from "@/app/BellSchedules";
+import Calendar from "@/app/Calendar";
 
-const Tab = createBottomTabNavigator();
-const Screen = Tab.Screen;
-const Navigator = Tab.Navigator;
+const Drawer = createDrawerNavigator();
 
-const AppNavigator = () => {
+export default function AppNavigator() {
     return (
-            <Navigator
-                screenOptions={{
-                    headerShown: false,
-                    tabBarStyle: { display: 'none' }
-                }}
-            >
-                <Screen name="BellSchedules" component={BellSchedules} />
-            </Navigator>
+            <Drawer.Navigator initialRouteName="Bell Schedules">
+                <Drawer.Screen
+                    name="Bell Schedules"
+                    component={BellSchedules}
+                    options={{
+                        title: 'Bell Schedules'
+                    }}
+                />
+                <Drawer.Screen
+                    name="Calendar"
+                    component={Calendar}
+                    options={{
+                        title: 'Calendar'
+                    }}
+                />
+            </Drawer.Navigator>
     );
-};
-
-export default AppNavigator;
+}

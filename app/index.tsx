@@ -3,6 +3,7 @@ import { View, Image, StyleSheet, Text, Animated } from 'react-native';
 import AppNavigator from '@/app/navigation/AppNavigator';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import {Link} from "expo-router";
+import {Button} from "@react-navigation/elements";
 
 export default function App() {
     const [isLoading, setIsLoading] = useState(true);
