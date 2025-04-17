@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import auhsdCalendar from "../misc/calendar";
+import {Button} from "@react-navigation/elements";
 
 const Calendar = () => {
     const [currentView, setCurrentView] = useState("list"); // "list" or "calendar"
     const [showPastEvents, setShowPastEvents] = useState(false);
+    const [monthsAhead, setMonthsAhead] = useState(0);
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString('en-US', {
         weekday: 'long',
@@ -36,8 +38,8 @@ const Calendar = () => {
 
     // Generate calendar month view
     const generateCalendarMonth = () => {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
+        const month = currentDate.getMonth() + monthsAhead % 12; // Adjust for months ahead
+        const year = currentDate.getFullYear() + Math.floor(monthsAhead / 12); // Adjust for year if month exceeds 12
 
         // Get first day of month
         const firstDayOfMonth = new Date(year, month, 1);
@@ -76,7 +78,7 @@ const Calendar = () => {
             weekday: 'short'
         });
 
-        let bgColor = '#ffffff';
+        let bgColor;
         switch(item.type) {
             case 'NO_SCHOOL': bgColor = '#ffcccc'; break;
             case 'QUARTER_END': bgColor = '#ccffcc'; break;
@@ -95,7 +97,6 @@ const Calendar = () => {
     };
 
     const calendarDays = generateCalendarMonth();
-    const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
     return (
         <SafeAreaView style={styles.container}>
@@ -158,7 +159,19 @@ const Calendar = () => {
                 </ScrollView>
             ) : (
                 <View style={styles.calendarContainer}>
-                    <Text style={styles.monthTitle}>{monthName}</Text>
+                    <View style={styles.pastEventsHeader}>
+                        <Button style={styles.monthBack} onPress={() => setMonthsAhead(monthsAhead - 1)}
+                                children={["Previous Month"]}
+                        >
+                            <Text style={styles.monthBackText}>Previous Month</Text>
+                        </Button>
+                        <Text style={styles.monthTitle}>{new Date(currentDate.getFullYear(), currentDate.getMonth() + monthsAhead).toLocaleString('default', { month: 'long', year: 'numeric' })}</Text>
+                        <Button style={styles.monthForward} onPress={() => setMonthsAhead(monthsAhead + 1)}
+                                children={["Next Month"]}
+                        >
+                            <Text style={styles.monthForwardText}>Next Month</Text>
+                        </Button>
+                    </View>
 
                     <View style={styles.weekdayHeader}>
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
@@ -420,7 +433,27 @@ const styles = StyleSheet.create({
     legendText: {
         fontSize: 14,
         color: '#212529',
-    }
+    },
+    monthBack: {
+        backgroundColor: '#007bff',
+        borderRadius: 8,
+        padding: 8,
+        marginRight: 4,
+    },
+    monthBackText: {
+        color: '#fff',
+        fontSize: 16,
+    },
+    monthForward: {
+        backgroundColor: '#007bff',
+        borderRadius: 8,
+        padding: 8,
+        marginLeft: 4,
+    },
+    monthForwardText: {
+        color: '#fff',
+        fontSize: 16,
+    },
 });
 
 export default Calendar;
