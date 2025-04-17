@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "Oxford Academy Bell Schedule",
+    "slug": "OA-Bell-Schedule",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "oa-timekeeper",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

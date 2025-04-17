@@ -1,22 +1,21 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import BellSchedules from "@/app/screens/BellSchedules";
+import BellSchedules from "@/app/BellSchedules";
 
 const Tab = createBottomTabNavigator();
+const Screen = Tab.Screen;
+const Navigator = Tab.Navigator;
 
 const AppNavigator = () => {
     return (
-            <Tab.Navigator
+            <Navigator
                 screenOptions={{
                     headerShown: false,
-                    tabBarStyle: { display: 'none' } // Always hide the tab bar
+                    tabBarStyle: { display: 'none' }
                 }}
             >
-                <Tab.Screen
-                    name="BellSchedules"
-                    component={BellSchedules}
-                />
-            </Tab.Navigator>
+                <Screen name="BellSchedules" component={BellSchedules} />
+            </Navigator>
     );
 };
 
