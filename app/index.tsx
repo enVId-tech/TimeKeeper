@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Image, StyleSheet, Text, Animated } from 'react-native';
+import { View, StyleSheet, Animated } from 'react-native';
 import AppNavigator from '@/app/navigation/AppNavigator';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import {Link} from "expo-router";
-import {Button} from "@react-navigation/elements";
 
 export default function App() {
     const [isLoading, setIsLoading] = useState(true);
@@ -103,6 +102,17 @@ export default function App() {
                     ]}
                 >
                     Oxford Academy
+                </Animated.Text>
+
+                <Animated.Text
+                    style={[
+                        styles.subtitle,
+                        {
+                            opacity: subtitleOpacity,
+                            transform: [{ translateY: subtitleAnim }]
+                        }
+                    ]}>
+                    Version 2.0.0
                 </Animated.Text>
 
                 <Animated.Text

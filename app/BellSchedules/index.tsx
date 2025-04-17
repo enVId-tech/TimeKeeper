@@ -153,7 +153,6 @@ const BellSchedules = () => {
                 >
                     <Text style={styles.mainTitle}>Bell Schedule</Text>
                     <Text style={styles.subTitle}>Oxford Academy</Text>
-                    <Text style={styles.version}>Version 1.0.1</Text>
                 </Animated.View>
 
                 {Object.entries(bellSchedule).map(([scheduleType, periods]) => {

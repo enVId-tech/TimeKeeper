@@ -160,17 +160,9 @@ const Calendar = () => {
             ) : (
                 <View style={styles.calendarContainer}>
                     <View style={styles.pastEventsHeader}>
-                        <Button style={styles.monthBack} onPress={() => setMonthsAhead(monthsAhead - 1)}
-                                children={["Previous Month"]}
-                        >
-                            <Text style={styles.monthBackText}>Previous Month</Text>
-                        </Button>
+                        <Button style={styles.monthBack} onPress={() => setMonthsAhead(monthsAhead - 1)}>Previous Month</Button>
                         <Text style={styles.monthTitle}>{new Date(currentDate.getFullYear(), currentDate.getMonth() + monthsAhead).toLocaleString('default', { month: 'long', year: 'numeric' })}</Text>
-                        <Button style={styles.monthForward} onPress={() => setMonthsAhead(monthsAhead + 1)}
-                                children={["Next Month"]}
-                        >
-                            <Text style={styles.monthForwardText}>Next Month</Text>
-                        </Button>
+                        <Button style={styles.monthForward} onPress={() => setMonthsAhead(monthsAhead + 1)}>Next Month</Button>
                     </View>
 
                     <View style={styles.weekdayHeader}>
