@@ -86,13 +86,8 @@ const auhsdCalendar: CalendarEvent[] = [
     { date: "2025-05-23", name: "Last Day of School", type: EventType.SCHOOL_EVENT },
     { date: "2025-05-23", name: "Grades Due", type: EventType.SCHOOL_EVENT },
     { date: "2025-05-26", name: "Memorial Day", type: EventType.NO_SCHOOL },
-    { date: "2025-05-27", name: "Underlined Day", type: EventType.SCHOOL_EVENT },
-    { date: "2025-05-28", name: "Underlined Day", type: EventType.SCHOOL_EVENT },
-    { date: "2025-05-29", name: "Underlined Day", type: EventType.SCHOOL_EVENT },
-    { date: "2025-05-30", name: "Underlined Day", type: EventType.SCHOOL_EVENT },
 
     // June 2025
-    { date: "2025-06-02", name: "Underlined Day", type: EventType.SCHOOL_EVENT },
     { date: "2025-06-19", name: "Juneteenth", type: EventType.US_HOLIDAY }
 ];
 
