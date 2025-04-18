@@ -2,7 +2,6 @@ import * as React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import BellSchedules from "@/app/BellSchedules";
 import Calendar from "@/app/Calendar";
-import Settings from "@/app/Settings";
 
 const Drawer = createDrawerNavigator();
 const Navigator = Drawer.Navigator as any;
@@ -23,14 +22,6 @@ export default function AppNavigator() {
                     component={Calendar}
                     options={{
                         title: 'Calendar'
-                    }}
-                />
-
-                <Screen
-                    name="Settings"
-                    component={Settings}
-                    options={{
-                        title: 'Settings'
                     }}
                 />
             </Navigator>

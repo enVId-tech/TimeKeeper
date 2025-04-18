@@ -63,7 +63,7 @@ export default function App() {
         // After animations and delay, transition to main app
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 3000);
+        }, 1500);
 
         return () => clearTimeout(timer);
     }, []);

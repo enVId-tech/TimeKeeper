@@ -159,10 +159,24 @@ const Calendar = () => {
                 </ScrollView>
             ) : (
                 <View style={styles.calendarContainer}>
-                    <View style={styles.pastEventsHeader}>
-                        <Button style={styles.monthBack} onPress={() => setMonthsAhead(monthsAhead - 1)}>Previous Month</Button>
-                        <Text style={styles.monthTitle}>{new Date(currentDate.getFullYear(), currentDate.getMonth() + monthsAhead).toLocaleString('default', { month: 'long', year: 'numeric' })}</Text>
-                        <Button style={styles.monthForward} onPress={() => setMonthsAhead(monthsAhead + 1)}>Next Month</Button>
+                        <View style={styles.monthNavigation}>
+                            <TouchableOpacity
+                                style={styles.monthNavButton}
+                                onPress={() => setMonthsAhead(monthsAhead - 1)}
+                            >
+                                <Text style={styles.monthNavButtonText}>←</Text>
+                            </TouchableOpacity>
+
+                            <Text style={styles.monthTitle}>
+                                {new Date(currentDate.getFullYear(), currentDate.getMonth() + monthsAhead).toLocaleString('default', { month: 'long', year: 'numeric' })}
+                            </Text>
+
+                            <TouchableOpacity
+                                style={styles.monthNavButton}
+                                onPress={() => setMonthsAhead(monthsAhead + 1)}
+                            >
+                                <Text style={styles.monthNavButtonText}>→</Text>
+                            </TouchableOpacity>
                     </View>
 
                     <View style={styles.weekdayHeader}>
@@ -333,11 +347,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     monthTitle: {
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 20,
         fontWeight: 'bold',
-        marginBottom: 12,
-        textAlign: 'center',
-        color: '#212529',
     },
     weekdayHeader: {
         flexDirection: 'row',
@@ -426,25 +439,32 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#212529',
     },
-    monthBack: {
-        backgroundColor: '#007bff',
-        borderRadius: 8,
-        padding: 8,
-        marginRight: 4,
+    monthNavigation: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
+        paddingHorizontal: 8,
     },
-    monthBackText: {
-        color: '#fff',
-        fontSize: 16,
+    monthNavButton: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 20,
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.5,
+        elevation: 2,
     },
-    monthForward: {
-        backgroundColor: '#007bff',
-        borderRadius: 8,
-        padding: 8,
-        marginLeft: 4,
-    },
-    monthForwardText: {
-        color: '#fff',
-        fontSize: 16,
+    monthNavButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#3498db',
     },
 });
 
