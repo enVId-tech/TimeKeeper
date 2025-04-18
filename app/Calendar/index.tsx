@@ -1,10 +1,22 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import auhsdCalendar from "../misc/calendar";
-import {Button} from "@react-navigation/elements";
+import { useTheme } from "@/app/context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
+
+// Define proper types for calendar events
+interface CalendarEvent {
+    date: string;
+    title: string;
+    description?: string;
+}
+
+// Type-cast auhsdCalendar
+const typedCalendar = auhsdCalendar as CalendarEvent[];
 
 const Calendar = () => {
+    const { colors, currentTheme } = useTheme();
     const [currentView, setCurrentView] = useState("list"); // "list" or "calendar"
     const [showPastEvents, setShowPastEvents] = useState(false);
     const [monthsAhead, setMonthsAhead] = useState(0);
@@ -17,29 +29,29 @@ const Calendar = () => {
     });
 
     // Get upcoming events for next 180 days
-    const upcomingEvents = auhsdCalendar
-        .filter((event: { date: string | number | Date; }) => {
+    const upcomingEvents = typedCalendar
+        .filter((event: CalendarEvent) => {
             const eventDate = new Date(event.date);
             const timeDiff = eventDate.getTime() - currentDate.getTime();
             const dayDiff = timeDiff / (1000 * 3600 * 24);
             return dayDiff >= 0 && dayDiff <= 180;
         })
-        .sort((a: { date: string | number | Date; }, b: { date: string | number | Date; }) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        .sort((a: CalendarEvent, b: CalendarEvent) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     // Get past events (last 180 days)
-    const pastEvents = auhsdCalendar
-        .filter((event: { date: string | number | Date; }) => {
+    const pastEvents = typedCalendar
+        .filter((event: CalendarEvent) => {
             const eventDate = new Date(event.date);
             const timeDiff = currentDate.getTime() - eventDate.getTime();
             const dayDiff = timeDiff / (1000 * 3600 * 24);
             return dayDiff > 0 && dayDiff <= 180;
         })
-        .sort((a: { date: string | number | Date; }, b: { date: string | number | Date; }) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Reverse chronological
+        .sort((a: CalendarEvent, b: CalendarEvent) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     // Generate calendar month view
     const generateCalendarMonth = () => {
-        const month = currentDate.getMonth() + monthsAhead % 12; // Adjust for months ahead
-        const year = currentDate.getFullYear() + Math.floor(monthsAhead / 12); // Adjust for year if month exceeds 12
+        const month = currentDate.getMonth() + monthsAhead % 12;
+        const year = currentDate.getFullYear() + Math.floor(monthsAhead / 12);
 
         // Get first day of month
         const firstDayOfMonth = new Date(year, month, 1);
@@ -59,39 +71,46 @@ const Calendar = () => {
         // Add actual days with events
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const events = auhsdCalendar.filter((event: { date: string; }) => event.date === dateStr);
+            const events = typedCalendar.filter((event: CalendarEvent) => event.date === dateStr);
             calendarDays.push({
                 day,
                 events,
-                isToday: day === currentDate.getDate() && month === currentDate.getMonth()
+                isToday: day === currentDate.getDate() && month === currentDate.getMonth() && year === currentDate.getFullYear()
             });
         }
 
         return calendarDays;
     };
 
-    const renderEventItem = ({ item }: any) => {
+    const renderEventItem = ({ item }: { item: CalendarEvent }) => {
         const eventDate = new Date(item.date);
         const formattedEventDate = eventDate.toLocaleDateString('en-US', {
+            weekday: 'short',
             month: 'short',
-            day: 'numeric',
-            weekday: 'short'
+            day: 'numeric'
         });
 
-        let bgColor;
-        switch(item.type) {
-            case 'NO_SCHOOL': bgColor = '#ffcccc'; break;
-            case 'QUARTER_END': bgColor = '#ccffcc'; break;
-            case 'US_HOLIDAY': bgColor = '#ffddbb'; break;
-            case 'SCHOOL_EVENT': bgColor = '#cce5ff'; break;
-            default: bgColor = '#ffffff';
-        }
-
         return (
-            <View style={[styles.eventItem, { backgroundColor: bgColor }]}>
-                <Text style={styles.eventDate}>{formattedEventDate}</Text>
-                <Text style={styles.eventName}>{item.name}</Text>
-                <Text style={styles.eventType}>{item.type}</Text>
+            <View style={[styles.eventItem, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <View style={styles.eventDateContainer}>
+                    <Text style={[styles.eventMonth, { color: colors.primary }]}>
+                        {eventDate.toLocaleDateString('en-US', { month: 'short' })}
+                    </Text>
+                    <Text style={[styles.eventDay, { color: colors.text }]}>
+                        {eventDate.getDate()}
+                    </Text>
+                    <Text style={[styles.eventWeekday, { color: colors.subText }]}>
+                        {eventDate.toLocaleDateString('en-US', { weekday: 'short' })}
+                    </Text>
+                </View>
+                <View style={styles.eventDetails}>
+                    <Text style={[styles.eventTitle, { color: colors.text }]}>{item.title}</Text>
+                    {item.description && (
+                        <Text style={[styles.eventDescription, { color: colors.subText }]}>
+                            {item.description}
+                        </Text>
+                    )}
+                </View>
             </View>
         );
     };
@@ -99,89 +118,106 @@ const Calendar = () => {
     const calendarDays = generateCalendarMonth();
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.headerDate}>{formattedDate}</Text>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <StatusBar barStyle={currentTheme === 'dark' ? "light-content" : "dark-content"} />
 
-            <View style={styles.viewSelector}>
+            <View style={styles.header}>
+                <Text style={[styles.headerText, { color: colors.text }]}>Today</Text>
+                <Text style={[styles.dateText, { color: colors.subText }]}>{formattedDate}</Text>
+            </View>
+
+            <View style={[styles.viewSelector, { backgroundColor: colors.accent + '33' }]}>
                 <TouchableOpacity
-                    style={[styles.selectorButton, currentView === "list" && styles.activeSelector]}
-                    onPress={() => setCurrentView("list")}>
-                    <Text style={[styles.selectorText, currentView === "list" && styles.activeSelectorText]}>
-                        Events List
+                    style={[
+                        styles.viewOption,
+                        currentView === "list" && [styles.activeViewOption, { backgroundColor: colors.primary }]
+                    ]}
+                    onPress={() => setCurrentView("list")}
+                >
+                    <Ionicons
+                        name="list"
+                        size={18}
+                        color={currentView === "list" ? "#fff" : colors.text}
+                    />
+                    <Text
+                        style={[
+                            styles.viewOptionText,
+                            { color: currentView === "list" ? "#fff" : colors.text }
+                        ]}
+                    >
+                        List
                     </Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                    style={[styles.selectorButton, currentView === "calendar" && styles.activeSelector]}
-                    onPress={() => setCurrentView("calendar")}>
-                    <Text style={[styles.selectorText, currentView === "calendar" && styles.activeSelectorText]}>
-                        Calendar View
+                    style={[
+                        styles.viewOption,
+                        currentView === "calendar" && [styles.activeViewOption, { backgroundColor: colors.primary }]
+                    ]}
+                    onPress={() => setCurrentView("calendar")}
+                >
+                    <Ionicons
+                        name="calendar"
+                        size={18}
+                        color={currentView === "calendar" ? "#fff" : colors.text}
+                    />
+                    <Text
+                        style={[
+                            styles.viewOptionText,
+                            { color: currentView === "calendar" ? "#fff" : colors.text }
+                        ]}
+                    >
+                        Calendar
                     </Text>
                 </TouchableOpacity>
             </View>
 
             {currentView === "list" ? (
-                <ScrollView style={styles.listContainer}>
-                    <Text style={styles.sectionTitle}>Upcoming Events (in the next 6 months)</Text>
-                    {upcomingEvents.length === 0 ? (
-                        <Text style={styles.noEvents}>No upcoming events in the next 6 months</Text>
-                    ) : (
-                        <FlatList
-                            scrollEnabled={false}
-                            data={upcomingEvents}
-                            renderItem={renderEventItem}
-                            keyExtractor={(item, index) => `upcoming-${item.date}-${index}`}
-                            contentContainerStyle={styles.eventsList}
-                        />
-                    )}
+                <View style={styles.listContainer}>
+                    <View style={styles.listHeader}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                            {showPastEvents ? "Past Events" : "Upcoming Events"}
+                        </Text>
+                        <TouchableOpacity onPress={() => setShowPastEvents(!showPastEvents)}>
+                            <Text style={[styles.toggleText, { color: colors.primary }]}>
+                                Show {showPastEvents ? "upcoming" : "past"} events
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
 
-                    {/* Past Events Collapsible Section */}
-                    <TouchableOpacity
-                        style={styles.pastEventsHeader}
-                        onPress={() => setShowPastEvents(!showPastEvents)}
-                    >
-                        <Text style={styles.pastEventsTitle}>Past Events (Last 6 Months)</Text>
-                        <Text style={styles.expandCollapseIcon}>{showPastEvents ? '▼' : '►'}</Text>
-                    </TouchableOpacity>
-
-                    {showPastEvents && (
-                        pastEvents.length === 0 ? (
-                            <Text style={styles.noEvents}>No past events in the last 6 months</Text>
-                        ) : (
-                            <FlatList
-                                scrollEnabled={false}
-                                data={pastEvents}
-                                renderItem={renderEventItem}
-                                keyExtractor={(item, index) => `past-${item.date}-${index}`}
-                                contentContainerStyle={styles.eventsList}
-                            />
-                        )
-                    )}
-                </ScrollView>
+                    <FlatList
+                        data={showPastEvents ? pastEvents : upcomingEvents}
+                        renderItem={renderEventItem}
+                        keyExtractor={(item, index) => `${item.title}-${index}`}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.eventsList}
+                    />
+                </View>
             ) : (
                 <View style={styles.calendarContainer}>
-                        <View style={styles.monthNavigation}>
-                            <TouchableOpacity
-                                style={styles.monthNavButton}
-                                onPress={() => setMonthsAhead(monthsAhead - 1)}
-                            >
-                                <Text style={styles.monthNavButtonText}>←</Text>
-                            </TouchableOpacity>
+                    <View style={styles.monthNavigation}>
+                        <TouchableOpacity
+                            style={[styles.monthNavButton, { backgroundColor: colors.card }]}
+                            onPress={() => setMonthsAhead(monthsAhead - 1)}
+                        >
+                            <Text style={[styles.monthNavButtonText, { color: colors.primary }]}>←</Text>
+                        </TouchableOpacity>
 
-                            <Text style={styles.monthTitle}>
-                                {new Date(currentDate.getFullYear(), currentDate.getMonth() + monthsAhead).toLocaleString('default', { month: 'long', year: 'numeric' })}
-                            </Text>
+                        <Text style={[styles.monthTitle, { color: colors.text }]}>
+                            {new Date(currentDate.getFullYear(), currentDate.getMonth() + monthsAhead).toLocaleString('default', { month: 'long', year: 'numeric' })}
+                        </Text>
 
-                            <TouchableOpacity
-                                style={styles.monthNavButton}
-                                onPress={() => setMonthsAhead(monthsAhead + 1)}
-                            >
-                                <Text style={styles.monthNavButtonText}>→</Text>
-                            </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.monthNavButton, { backgroundColor: colors.card }]}
+                            onPress={() => setMonthsAhead(monthsAhead + 1)}
+                        >
+                            <Text style={[styles.monthNavButtonText, { color: colors.primary }]}>→</Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.weekdayHeader}>
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                            <Text key={day} style={styles.weekdayText}>{day}</Text>
+                            <Text key={day} style={[styles.weekdayText, { color: colors.subText }]}>{day}</Text>
                         ))}
                     </View>
 
@@ -192,18 +228,20 @@ const Calendar = () => {
                                     key={`day-${index}`}
                                     style={[
                                         styles.calendarDay,
-                                        dayObj.empty && styles.emptyDay,
-                                        dayObj.isToday && styles.todayBox
+                                        { borderColor: colors.border },
+                                        dayObj.empty && [styles.emptyDay, { backgroundColor: colors.card }],
+                                        dayObj.isToday && [styles.todayBox, { backgroundColor: colors.primary + '20' }]
                                     ]}
                                 >
                                     <Text style={[
                                         styles.calendarDayText,
-                                        dayObj.isToday && styles.todayText
+                                        { color: colors.text },
+                                        dayObj.isToday && [styles.todayDayText, { color: colors.primary }]
                                     ]}>
                                         {dayObj.day}
                                     </Text>
                                     {!dayObj.empty && dayObj.events && dayObj.events.length > 0 && (
-                                        <View style={styles.eventDot}>
+                                        <View style={[styles.eventDot, { backgroundColor: colors.primary }]}>
                                             <Text style={styles.eventCount}>{dayObj.events.length}</Text>
                                         </View>
                                     )}
@@ -211,23 +249,23 @@ const Calendar = () => {
                             ))}
                         </View>
 
-                        <View style={styles.calendarLegend}>
-                            <Text style={styles.legendTitle}>Event Types:</Text>
+                        <View style={[styles.calendarLegend, { backgroundColor: colors.card }]}>
+                            <Text style={[styles.legendTitle, { color: colors.text }]}>Event Types:</Text>
                             <View style={styles.legendItem}>
                                 <View style={[styles.legendDot, {backgroundColor: '#ffcccc'}]} />
-                                <Text style={styles.legendText}>No School</Text>
+                                <Text style={[styles.legendText, { color: colors.text }]}>No School</Text>
                             </View>
                             <View style={styles.legendItem}>
                                 <View style={[styles.legendDot, {backgroundColor: '#ccffcc'}]} />
-                                <Text style={styles.legendText}>Quarter End</Text>
+                                <Text style={[styles.legendText, { color: colors.text }]}>Quarter End</Text>
                             </View>
                             <View style={styles.legendItem}>
                                 <View style={[styles.legendDot, {backgroundColor: '#ffddbb'}]} />
-                                <Text style={styles.legendText}>US Holiday</Text>
+                                <Text style={[styles.legendText, { color: colors.text }]}>US Holiday</Text>
                             </View>
                             <View style={styles.legendItem}>
                                 <View style={[styles.legendDot, {backgroundColor: '#cce5ff'}]} />
-                                <Text style={styles.legendText}>School Event</Text>
+                                <Text style={[styles.legendText, { color: colors.text }]}>School Event</Text>
                             </View>
                         </View>
                     </ScrollView>
@@ -240,115 +278,111 @@ const Calendar = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
-        padding: 16,
     },
-    headerDate: {
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#333',
-        marginBottom: 16,
-        textAlign: 'center',
+    header: {
+        padding: 16,
+        paddingBottom: 8,
+    },
+    headerText: {
+        fontSize: 28,
+        fontWeight: '700',
+    },
+    dateText: {
+        fontSize: 16,
     },
     viewSelector: {
         flexDirection: 'row',
-        backgroundColor: '#e9ecef',
+        marginHorizontal: 16,
+        marginBottom: 16,
         borderRadius: 8,
-        marginBottom: 20,
         padding: 4,
     },
-    selectorButton: {
+    viewOption: {
         flex: 1,
-        paddingVertical: 10,
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 8,
         borderRadius: 6,
     },
-    activeSelector: {
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 1,
-        elevation: 1,
+    activeViewOption: {
+        // backgroundColor is applied dynamically
     },
-    selectorText: {
+    viewOptionText: {
+        marginLeft: 6,
         fontWeight: '500',
-        color: '#6c757d',
-    },
-    activeSelectorText: {
-        color: '#007bff',
     },
     listContainer: {
         flex: 1,
     },
+    listHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        marginBottom: 8,
+    },
     sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 12,
-        color: '#212529',
+        fontSize: 18,
+        fontWeight: '600',
+    },
+    toggleText: {
+        fontSize: 14,
     },
     eventsList: {
-        paddingBottom: 12,
+        paddingHorizontal: 16,
+        paddingBottom: 20,
     },
     eventItem: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 8,
+        flexDirection: 'row',
+        marginBottom: 12,
+        borderRadius: 12,
+        overflow: 'hidden',
+        borderWidth: 1,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
     },
-    eventDate: {
-        fontSize: 14,
-        color: '#6c757d',
-        marginBottom: 4,
-    },
-    eventName: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#212529',
-        marginBottom: 4,
-    },
-    eventType: {
-        fontSize: 14,
-        color: '#6c757d',
-        fontStyle: 'italic',
-    },
-    noEvents: {
-        textAlign: 'center',
-        color: '#6c757d',
-        marginTop: 8,
-        marginBottom: 16,
-        fontSize: 16,
-    },
-    pastEventsHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    eventDateContainer: {
+        width: 60,
         alignItems: 'center',
-        backgroundColor: '#e9ecef',
-        borderRadius: 8,
+        justifyContent: 'center',
+        paddingVertical: 12,
+    },
+    eventMonth: {
+        fontSize: 12,
+        fontWeight: '500',
+        textTransform: 'uppercase',
+    },
+    eventDay: {
+        fontSize: 20,
+        fontWeight: '700',
+    },
+    eventWeekday: {
+        fontSize: 12,
+    },
+    eventDetails: {
+        flex: 1,
         padding: 12,
-        marginTop: 16,
-        marginBottom: 12,
+        paddingLeft: 0,
+        marginLeft: 8,
+        justifyContent: 'center',
     },
-    pastEventsTitle: {
+    eventTitle: {
         fontSize: 16,
-        fontWeight: '600',
-        color: '#495057',
+        fontWeight: '500',
     },
-    expandCollapseIcon: {
+    eventDescription: {
         fontSize: 14,
-        color: '#495057',
+        marginTop: 4,
     },
     calendarContainer: {
         flex: 1,
+        paddingHorizontal: 16,
     },
     monthTitle: {
-        justifyContent: 'center',
-        alignItems: 'center',
         fontSize: 20,
         fontWeight: 'bold',
     },
@@ -360,7 +394,6 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign: 'center',
         fontWeight: '600',
-        color: '#6c757d',
     },
     calendarGrid: {
         flex: 1,
@@ -374,29 +407,25 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         padding: 4,
         borderWidth: 0.5,
-        borderColor: '#dee2e6',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
     },
     emptyDay: {
-        backgroundColor: '#f8f9fa',
+        // backgroundColor is applied dynamically
     },
     calendarDayText: {
         fontSize: 16,
-        color: '#212529',
     },
     todayBox: {
-        backgroundColor: '#e6f2ff',
+        // backgroundColor is applied dynamically
     },
-    todayText: {
+    todayDayText: {
         fontWeight: 'bold',
-        color: '#007bff',
     },
     eventDot: {
         position: 'absolute',
         bottom: 5,
-        backgroundColor: '#dc3545',
         width: 18,
         height: 18,
         borderRadius: 9,
@@ -411,7 +440,6 @@ const styles = StyleSheet.create({
     calendarLegend: {
         marginTop: 20,
         padding: 12,
-        backgroundColor: '#fff',
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
@@ -437,19 +465,15 @@ const styles = StyleSheet.create({
     },
     legendText: {
         fontSize: 14,
-        color: '#212529',
     },
     monthNavigation: {
-        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
         paddingHorizontal: 8,
     },
     monthNavButton: {
-        backgroundColor: '#f0f0f0',
         borderRadius: 20,
         width: 40,
         height: 40,
@@ -464,7 +488,6 @@ const styles = StyleSheet.create({
     monthNavButtonText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#3498db',
     },
 });
 

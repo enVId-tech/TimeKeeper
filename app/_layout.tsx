@@ -1,24 +1,30 @@
 import React from 'react';
-import { Tabs, usePathname } from 'expo-router';
-import { Platform } from 'react-native';
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import {Stack, Tabs} from 'expo-router';
+import { ThemeProvider } from '@/app/context/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
+import { useTheme } from '@/app/context/ThemeContext';
+import {Platform} from "react-native";
+import {Colors} from "@/constants/Colors";
+import {HapticTab} from "@/components/HapticTab";
+import TabBarBackground from "@/components/ui/TabBarBackground";
 
-export default function TabLayout() {
-    const colorScheme = useColorScheme();
-    const pathname = usePathname();
+// Other imports you might have...
 
-    // Hide tab bar when viewing the bell schedule page
-    const isHomeScreen = pathname === '/index';
-    const hideTabBar = !isHomeScreen;
+export default function RootLayout() {
+    return (
+        <ThemeProvider>
+            <RootLayoutNav />
+        </ThemeProvider>
+    );
+}
+
+function RootLayoutNav() {
+    const { currentTheme, colors } = useTheme();
+    const hideTabBar = true;
 
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
                 headerShown: false,
                 tabBarButton: HapticTab,
                 tabBarBackground: TabBarBackground,
@@ -33,13 +39,22 @@ export default function TabLayout() {
 
                 }
             }}>
-            <Tabs.Screen
-                name="index"
-                options={{
-                    title: 'Home',
-                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+            <StatusBar style={currentTheme === 'dark' ? 'light' : 'dark'} />
+            <Stack
+                screenOptions={{
+                    headerStyle: {
+                        backgroundColor: colors.card,
+                    },
+                    headerTintColor: colors.text,
+                    headerTitleStyle: {
+                        color: colors.text,
+                    },
+                    contentStyle: {
+                        backgroundColor: colors.background,
+                    },
                 }}
-            />
+            >
+            </Stack>
         </Tabs>
     );
 }
