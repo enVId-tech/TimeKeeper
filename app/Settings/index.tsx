@@ -4,7 +4,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { bellSchedule } from "@/app/misc/times";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Notifications from 'expo-notifications';
+import * as Notifications from 'expo-notifications';
 import { useTheme } from '@/app/context/ThemeContext';
 
 // Define types for bellSchedule
@@ -183,7 +183,11 @@ const UserSettings = () => {
                             body: `Your ${periodName} period starts in ${setting.minutesBefore} minutes`,
                             sound: true,
                         },
-                        trigger: scheduleDate,
+                        trigger: {
+                            type: 'date',
+                            date: scheduleDate,
+                            repeats: false,
+                        },
                     });
 
                     console.log(`Scheduled notification ${identifier} for ${periodName} at ${scheduleDate}`);
