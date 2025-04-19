@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Link, Stack } from "expo-router";
-import { View, Text, StyleSheet, Animated, ScrollView } from "react-native";
+import { Stack } from "expo-router";
+import { View, Text, StyleSheet, Animated, ScrollView, TouchableOpacity, Linking } from "react-native";
 import { bellSchedule } from "@/app/misc/times";
+import { useTheme } from "@/app/context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 
 const BellSchedules = () => {
+    const { colors, currentTheme } = useTheme();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [selectedValue, setSelectedValue] = useState("");
     const animatedHeight = useRef(new Animated.Value(0)).current;
@@ -134,7 +137,7 @@ const BellSchedules = () => {
 
     return (
         <ScrollView
-            style={styles.container}
+            style={[styles.container, { backgroundColor: colors.background }]}
             contentContainerStyle={styles.contentContainer}
             showsVerticalScrollIndicator={true}
             bounces={true}
@@ -151,8 +154,8 @@ const BellSchedules = () => {
                         }
                     ]}
                 >
-                    <Text style={styles.mainTitle}>Bell Schedule</Text>
-                    <Text style={styles.subTitle}>Oxford Academy</Text>
+                    <Text style={[styles.mainTitle, { color: colors.text }]}>Bell Schedule</Text>
+                    <Text style={[styles.subTitle, { color: colors.subText }]}>Oxford Academy</Text>
                 </Animated.View>
 
                 {Object.entries(bellSchedule).map(([scheduleType, periods]) => {
@@ -172,15 +175,27 @@ const BellSchedules = () => {
                                 }
                             ]}
                         >
-                            <Text
-                                style={[
-                                    styles.scheduleHeader,
-                                    scheduleType === selectedValue && styles.activeHeader
-                                ]}
+                            <TouchableOpacity
                                 onPress={() => handleScheduleSelect(scheduleType)}
+                                activeOpacity={0.7}
                             >
-                                {scheduleType.charAt(0).toUpperCase() + scheduleType.slice(1)}
-                            </Text>
+                                <Text
+                                    style={[
+                                        styles.scheduleHeader,
+                                        {
+                                            backgroundColor: colors.card,
+                                            color: scheduleType === selectedValue ? colors.primary : colors.text,
+                                            borderColor: colors.border
+                                        },
+                                        scheduleType === selectedValue && [
+                                            styles.activeHeader,
+                                            { backgroundColor: colors.primary }
+                                        ]
+                                    ]}
+                                >
+                                    {scheduleType.charAt(0).toUpperCase() + scheduleType.slice(1)}
+                                </Text>
+                            </TouchableOpacity>
 
                             {scheduleType === selectedValue && (
                                 <Animated.View
@@ -198,15 +213,23 @@ const BellSchedules = () => {
                                     {periods.map((period) => (
                                         <View
                                             key={period.period}
-                                            style={checkWithinTimeframe(period.start, period.end)
-                                                ? styles.highlighted
-                                                : styles.visible
-                                            }
+                                            style={[
+                                                checkWithinTimeframe(period.start, period.end)
+                                                    ? [styles.highlighted, { backgroundColor: colors.highlight }]
+                                                    : [styles.visible, { backgroundColor: colors.card }],
+                                                { borderColor: colors.border }
+                                            ]}
                                         >
-                                            <Text style={styles.periodName}>{period.period}</Text>
+                                            <Text style={[styles.periodName, { color: colors.text }]}>
+                                                {period.period}
+                                            </Text>
                                             <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
-                                                <Text style={styles.periodDuration}>{period.duration} minutes</Text>
-                                                <Text style={styles.periodTime}>{period.start} - {period.end}</Text>
+                                                <Text style={[styles.periodDuration, { color: colors.subText }]}>
+                                                    {period.duration} minutes
+                                                </Text>
+                                                <Text style={[styles.periodTime, { color: colors.subText }]}>
+                                                    {period.start} - {period.end}
+                                                </Text>
                                             </View>
                                         </View>
                                     ))}
@@ -215,14 +238,35 @@ const BellSchedules = () => {
                         </Animated.View>
                     );
                 })}
-                <Text style={styles.currentTime}>
+
+                <Text style={[styles.currentTime, { color: colors.text }]}>
                     Current Time: {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit'})}
                 </Text>
-                <Text style={styles.feedback}>
-                    <Link href={"https://forms.gle/jZDuX385VBztGXqs7"} target="_blank" style={{ color: '#007AFF' }}>Want to leave feedback? Tap on this text!</Link>
-                </Text>
-                <Text style={styles.credits}>
-                    Copyright © {new Date().getFullYear()} <Link style={styles.myname} href={'https://github.com/enVId-tech'} target={"_blank"}>Erick Tran</Link>. All rights reserved.
+
+                <View style={styles.actionButtonsContainer}>
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+                        onPress={() => Linking.openURL("https://forms.gle/jZDuX385VBztGXqs7")}
+                    >
+                        <Ionicons name="chatbubble-outline" size={18} color={colors.primary} />
+                        <Text style={[styles.actionButtonText, { color: colors.text }]}>
+                            Leave Feedback
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+                        onPress={() => Linking.openURL("https://github.com/enVId-tech")}
+                    >
+                        <Ionicons name="logo-github" size={18} color={colors.primary} />
+                        <Text style={[styles.actionButtonText, { color: colors.text }]}>
+                            Developer
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.credits, { color: colors.subText }]}>
+                    Copyright © {new Date().getFullYear()} Erick Tran. All rights reserved.
                 </Text>
             </View>
         </ScrollView>
@@ -232,7 +276,6 @@ const BellSchedules = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
         height: '100%',
     },
     contentContainer: {
@@ -255,18 +298,11 @@ const styles = StyleSheet.create({
     mainTitle: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: '#1a1a2e',
         marginBottom: 4,
     },
     subTitle: {
         fontSize: 16,
-        color: '#666',
         marginBottom: 2,
-    },
-    version: {
-        fontSize: 12,
-        color: '#888',
-        marginBottom: 24,
     },
     scheduleContainer: {
         width: '100%',
@@ -276,12 +312,11 @@ const styles = StyleSheet.create({
     scheduleHeader: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1a1a2e',
         paddingVertical: 12,
         paddingHorizontal: 16,
-        backgroundColor: '#fff',
         borderRadius: 12,
         marginBottom: 8,
+        borderWidth: 1,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
@@ -289,7 +324,6 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     activeHeader: {
-        backgroundColor: '#3498db',
         color: '#fff',
     },
     periodListContainer: {
@@ -299,7 +333,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     visible: {
-        backgroundColor: '#fff',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -307,6 +340,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         borderRadius: 10,
         padding: 14,
+        borderWidth: 1,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
@@ -316,14 +350,14 @@ const styles = StyleSheet.create({
     periodName: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#333',
     },
     periodTime: {
         fontSize: 14,
-        color: '#666',
+    },
+    periodDuration: {
+        fontSize: 14,
     },
     highlighted: {
-        backgroundColor: '#98fb98',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -331,38 +365,51 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         borderRadius: 10,
         padding: 14,
+        borderWidth: 1,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 1,
     },
-    credits: {
-        fontSize: 12,
-        color: '#888',
-        marginTop: 16,
-        textAlign: "center",
-        padding: 10
-    },
     currentTime: {
         fontSize: 16,
-        color: '#333',
         marginTop: 16,
         fontWeight: 'bold',
     },
-    feedback: {
+    actionButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20,
+        width: '100%',
+        gap: 12,
+    },
+    actionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 10,
+        flex: 1,
+        borderWidth: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.5,
+        elevation: 2,
+    },
+    actionButtonText: {
+        marginLeft: 8,
+        fontWeight: '500',
         fontSize: 14,
-        color: '#333',
+    },
+    credits: {
+        fontSize: 12,
         marginTop: 16,
-        textDecorationLine: 'underline',
-    },
-    myname: {
-        color: '#007AFF',
-        textDecorationLine: 'underline',
-    },
-    periodDuration: {
-        fontSize: 14,
-        color: '#666',
+        textAlign: "center",
+        padding: 10
     }
 });
 

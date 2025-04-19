@@ -183,10 +183,9 @@ const UserSettings = () => {
                             sound: true,
                         },
                         trigger: {
+                            type: "date",
                             date: scheduleDate,
-                            repeats: false,
-                            type: 'date',
-                        },
+                        }
                     });
 
                     console.log(`Scheduled notification ${identifier} for ${periodName} at ${scheduleDate}`);

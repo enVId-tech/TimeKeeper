@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
-import AppNavigator from '@/app/navigation/AppNavigator';
+import { View, StyleSheet, Animated, Text, StatusBar } from 'react-native';
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import {Link} from "expo-router";
+import { ThemeProvider, useTheme } from '@/app/context/ThemeContext';
+import AppNavigator from "@/app/navigation/AppNavigator";
 
-export default function App() {
-    const [isLoading, setIsLoading] = useState(true);
+// Separate loading screen component that can access theme context
+const LoadingScreen = () => {
+    const { colors, currentTheme } = useTheme();
     const logoAnim = useRef(new Animated.Value(50)).current;
     const logoOpacity = useRef(new Animated.Value(0)).current;
     const titleAnim = useRef(new Animated.Value(50)).current;
@@ -18,37 +19,37 @@ export default function App() {
         // Fade in and move up animations for splash screen elements
         Animated.stagger(200, [
             Animated.parallel([
-                Animated.timing(logoAnim, {
-                    toValue: 0,
-                    duration: 800,
-                    useNativeDriver: true,
-                }),
                 Animated.timing(logoOpacity, {
                     toValue: 1,
                     duration: 800,
                     useNativeDriver: true,
                 }),
-            ]),
-            Animated.parallel([
-                Animated.timing(titleAnim, {
+                Animated.timing(logoAnim, {
                     toValue: 0,
                     duration: 800,
                     useNativeDriver: true,
                 }),
+            ]),
+            Animated.parallel([
                 Animated.timing(titleOpacity, {
                     toValue: 1,
                     duration: 800,
                     useNativeDriver: true,
                 }),
-            ]),
-            Animated.parallel([
-                Animated.timing(subtitleAnim, {
+                Animated.timing(titleAnim, {
                     toValue: 0,
                     duration: 800,
                     useNativeDriver: true,
                 }),
+            ]),
+            Animated.parallel([
                 Animated.timing(subtitleOpacity, {
                     toValue: 1,
+                    duration: 800,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(subtitleAnim, {
+                    toValue: 0,
                     duration: 800,
                     useNativeDriver: true,
                 }),
@@ -57,135 +58,126 @@ export default function App() {
                 toValue: 1,
                 duration: 800,
                 useNativeDriver: true,
-            })
+            }),
         ]).start();
+    }, []);
 
+    return (
+        <View style={[styles.container, {backgroundColor: colors.background}]}>
+            <StatusBar
+                barStyle={currentTheme === 'dark' ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
+
+            <Animated.Image
+                source={require('../assets/images/OxfordLogo.png')}
+                style={[
+                    styles.logo,
+                    {
+                        opacity: logoOpacity,
+                        transform: [{ translateY: logoAnim }]
+                    }
+                ]}
+            />
+
+            <Animated.Text
+                style={[
+                    styles.title,
+                    {
+                        color: colors.text,
+                        opacity: titleOpacity,
+                        transform: [{ translateY: titleAnim }]
+                    }
+                ]}
+            >
+                Oxford Academy
+            </Animated.Text>
+
+            <Animated.Text
+                style={[
+                    styles.subtitle,
+                    {
+                        color: colors.subText,
+                        opacity: subtitleOpacity,
+                        transform: [{ translateY: subtitleAnim }]
+                    }
+                ]}
+            >
+                Bell Schedule App
+            </Animated.Text>
+
+            <Animated.Text
+                style={[
+                    styles.credits,
+                    { color: colors.subText, opacity: creditsOpacity }
+                ]}
+            >
+                by Erick Tran
+            </Animated.Text>
+        </View>
+    );
+};
+
+// Main App component that includes AppNavigator
+const MainApp = () => {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
         // After animations and delay, transition to main app
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 1500);
+        }, 3000); // 3 seconds for splash screen
 
         return () => clearTimeout(timer);
     }, []);
 
     if (isLoading) {
-        return (
-            <View style={styles.container}>
-                <Animated.Image
-                    source={require('../assets/images/OxfordLogo.png')}
-                    style={[
-                        styles.logo,
-                        {
-                            opacity: logoOpacity,
-                            transform: [{ translateY: logoAnim }]
-                        }
-                    ]}
-                />
-                <Animated.Text
-                    style={[
-                        styles.title,
-                        {
-                            opacity: titleOpacity,
-                            transform: [{ translateY: titleAnim }]
-                        }
-                    ]}
-                >
-                    Bell Schedule
-                </Animated.Text>
-                <Animated.Text
-                    style={[
-                        styles.subtitle,
-                        {
-                            opacity: subtitleOpacity,
-                            transform: [{ translateY: subtitleAnim }]
-                        }
-                    ]}
-                >
-                    Oxford Academy
-                </Animated.Text>
-
-                <Animated.Text
-                    style={[
-                        styles.subtitle,
-                        {
-                            opacity: subtitleOpacity,
-                            transform: [{ translateY: subtitleAnim }]
-                        }
-                    ]}>
-                    Version 2.0.0
-                </Animated.Text>
-
-                <Animated.Text
-                    style={[
-                        styles.credits,
-                        { opacity: creditsOpacity }
-                    ]}
-                >
-                    Copyright © {new Date().getFullYear()} <Link style={styles.myname} href={'https://github.com/enVId-tech'} target={"_blank"}>Erick Tran</Link>. All rights reserved.
-                </Animated.Text>
-            </View>
-        );
+        return <LoadingScreen />;
     }
 
     return (
         <SafeAreaProvider>
-            <AnimatedAppNavigator />
+            {/* Import your AppNavigator here with proper routing */}
+            <AppNavigator />
         </SafeAreaProvider>
     );
-}
-
-// Wrap the AppNavigator component with animations
-const AnimatedAppNavigator = () => {
-    const fadeAnim = useRef(new Animated.Value(0)).current;
-
-    useEffect(() => {
-        Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-        }).start();
-    }, []);
-
-    return (
-        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-            <AppNavigator />
-        </Animated.View>
-    );
 };
+
+// Root component that wraps everything with ThemeProvider
+export default function App() {
+    return (
+        <ThemeProvider>
+            <MainApp />
+        </ThemeProvider>
+    );
+}
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#ffffff',
     },
     logo: {
-        width: 150,
-        height: 150,
-        marginBottom: 20,
+        width: 120,
+        height: 120,
+        marginBottom: 30,
+        resizeMode: 'contain',
     },
     title: {
-        fontSize: 64,
+        fontSize: 28,
         fontWeight: 'bold',
-        color: '#000000',
-        marginBottom: 8,
+        marginBottom: 10,
         textAlign: 'center',
     },
     subtitle: {
-        fontSize: 32,
-        color: '#000000',
-    },
-    credits: {
         fontSize: 18,
-        color: '#4f4f4f',
-        marginTop: 16,
-        position: 'absolute',
-        bottom: 40,
+        marginBottom: 40,
         textAlign: 'center',
     },
-    myname: {
-        color: '#007AFF',
-        textDecorationLine: 'underline',
+    credits: {
+        position: 'absolute',
+        bottom: 40,
+        fontSize: 14,
     }
 });
