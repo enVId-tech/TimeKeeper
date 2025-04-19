@@ -8,12 +8,12 @@ import { Ionicons } from "@expo/vector-icons";
 // Define proper types for calendar events
 interface CalendarEvent {
     date: string;
-    title: string;
+    name: string;
     description?: string;
 }
 
 // Type-cast auhsdCalendar
-const typedCalendar = auhsdCalendar as CalendarEvent[];
+const typedCalendar: CalendarEvent[] = auhsdCalendar;
 
 const Calendar = () => {
     const { colors, currentTheme } = useTheme();
@@ -104,7 +104,7 @@ const Calendar = () => {
                     </Text>
                 </View>
                 <View style={styles.eventDetails}>
-                    <Text style={[styles.eventTitle, { color: colors.text }]}>{item.title}</Text>
+                    <Text style={[styles.eventTitle, { color: colors.text }]}>{item.name}</Text>
                     {item.description && (
                         <Text style={[styles.eventDescription, { color: colors.subText }]}>
                             {item.description}
@@ -188,7 +188,7 @@ const Calendar = () => {
                     <FlatList
                         data={showPastEvents ? pastEvents : upcomingEvents}
                         renderItem={renderEventItem}
-                        keyExtractor={(item, index) => `${item.title}-${index}`}
+                        keyExtractor={(item, index) => `${item.name}-${index}`}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={styles.eventsList}
                     />

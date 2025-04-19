@@ -4,7 +4,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { bellSchedule } from "@/app/misc/times";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
+import Notifications from 'expo-notifications';
 import { useTheme } from '@/app/context/ThemeContext';
 
 // Define types for bellSchedule
@@ -176,16 +176,14 @@ const UserSettings = () => {
 
                 // Only schedule if it's in the future
                 if (scheduleDate > now) {
+                    // @ts-ignore
                     const identifier = await Notifications.scheduleNotificationAsync({
                         content: {
                             title: `${periodName} starts soon`,
                             body: `Your ${periodName} period starts in ${setting.minutesBefore} minutes`,
                             sound: true,
                         },
-                        trigger: {
-                            type: "date",
-                            date: scheduleDate,
-                        }
+                        trigger: scheduleDate,
                     });
 
                     console.log(`Scheduled notification ${identifier} for ${periodName} at ${scheduleDate}`);

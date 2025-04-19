@@ -2,7 +2,7 @@
   "expo": {
     "name": "Oxford Academy Bell Schedule",
     "slug": "OA-Bell-Schedule",
-    "version": "3.0.0",
+    "version": "3.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "oa-timekeeper",
